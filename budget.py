@@ -1,331 +1,269 @@
-asterics = "*" * 20
-class Budget:
-    def __init__(self):
-        self.category_list = []  # ["food", "clothing", and "entertainment"] etc
-        self.category_balance = {}   # {"food":100, "clothing":1039, "entertainment":454} etc
-    
-    
-   # Start of the App
-    """
-    This checks if the category list is empty, if empty then user should create categories
-    else proceed to operations to be performed.
-    Try initializind any or both of them to test this function
-    """
-    def app_main(self):
-        print(asterics + "Welcom to Budget App".upper() + asterics)
-        if not(self.category_list and self.category_balance):
-            print("Your Categories are empty, please add categories")
-            self.create_categories()
-        else:
-            self.operation()
-        
-   
-       
-
-    """
-    To create fresh category list.
-    This grabs the categories in the list and also display their available balances.
-    """
-    def create_categories(self):
-        number_of_categories = int(input("How many categories do you want to create?: "))
-        for num in range(1, number_of_categories+1):
-            supply_category = input(f"Supply Category Name {num}: ")
-            self.category_list.append(supply_category)
-            
-        for category in self.category_list:
-            self.category_balance[category] = 0
-        print(asterics + "Categories have been successfully created" + asterics)
-        print(f"List and Balance: {self.category_balance}\n")
-        self.operation()
-
-    
-    # To perform basic operations
-    def operation(self):
-        print("""These are the operations that can be performed\n
-            [1] - DEPOSIT TO CATEGORY.
-            [2] - WITHDRAWAL FROM CATEGORY.
-            [3] - GET CATEGORY BALANCE.
-            [4] - TRANSFER BETWEEN CATEGORIES.
-            [5] - CREATE NEW CATEGORY.
-            [6] - TOTAL BALANCE.
-            [0] - EXIT.
-        """)
-        try:
-            action = int(input("Which operation do you want to perform, type 1,2----6: "))
-            if action == 1:
-                self.deposit_funds()
-                
-            elif action == 2:
-                self.withdraw_funds()
-                
-            elif action == 3:
-                self.get_balance()
-                
-            elif action == 4:
-                self.transfer_funds()
-                
-            elif action == 5:
-                self.add_new_category()
-            
-            elif action == 6:
-                self.get_total_balance()
-                
-            elif action == 0:
-                self.exit_app()
-                
-            else:
-                print("You have supplied an invalid input, please try again\n")
-                self.operation()   
-        except ValueError:
-            print("Digit is expected")
-            self.operation()
+import random
+from datetime import datetime as dt
+import database
+from validation import account_number_validation
+from getpass import getpass
+from auth_session.session import (delete_login_session, create_login_session)
 
 
-    # Deposit funds to any category
-    def deposit_funds(self):
-        print("The below are the categories available for deposit?")
-        for category in self.category_list:
-            print(self.category_list.index(category)+1, category) # Returns index+1 of category and category name
-        try:
-            select_category = int(input("Select a category to deposit funds to: "))
-            selected_category = select_category - 1 # subtracts 1 from number supplied to match the real index of the select category in category list.
-            category = self.category_list[selected_category] # Pass selected category into a variable
-            print(f"you have chosen to deposit funds to  {category}".capitalize())
-            deposit_amount = int(input(f"How much do you want to deposit to {category}: "))
-            self.category_balance[category] += deposit_amount
-            print(f"You have deposited {deposit_amount} to {category}")
-            print(f"Your New Balance:  {self.category_balance}")
-            try:
-                reply = input("would you like to perform another operation? type y/yes or n/no: ".lower())
-                if reply == "yes" or reply =="y":
-                    self.operation()  
-                elif reply =="no" or reply == "no":
-                    print(asterics + "Thanks for using this app" + asterics)
-                    exit()  
-                else:
-                    print("invalid input")
-            except ValueError:
-                print("A string is expected, please try again")
-        except:
-            print("Digit Expected")
-            self.operation()
-
-        
-    # Withdraw funds from any category
-    def withdraw_funds(self):
-        print("The below are the categories available for deposit?")
-        for category in self.category_list:
-            print(self.category_list.index(category)+1, category) # Returns index+1 of category and category name
-        try:
-            select_category = int(input("Select a category to withdraw funds from: "))
-            selected_category = select_category - 1 # subtracts 1 from number supplied to match the real index of the select category in category list.
-            category = self.category_list[selected_category]
-            print(f"you have chosen to withdraw funds from  {category}")
-            withdrawal_amount = int(input(f"How much do you want to Withdraw from {category}: "))
-            if withdrawal_amount >= self.category_balance[category] or self.category_balance[category] <= 0:
-                print(f"Insufficient funds, your current balance is {self.category_balance[category]}")
-                try:
-                    response = input("Would you like to make a deposit? type y/yes or n/no: ".lower()) 
-                    if response == "yes" or response == "y":
-                        self.deposit_funds()
-                    elif response == "no" or response =="n":
-                        try:
-                            reply = input("would you like to perform another operation? type y/yes or n/no: ".lower())
-                            if reply == "yes" or reply =="y":
-                                self.operation()
-                            elif reply =="no" or reply == "no":
-                                print(asterics + "Thanks for using this app" + asterics)
-                                exit()
-                            else:
-                                print("invalid value supplied")
-                                self.operation() 
-                        except ValueError:
-                            print("A string value Expected")
-                            self.operation()
-                       
-                    else:
-                        print("invalid parameter supplied")
-                        self.operation()   
-                except ValueError:
-                    print("A string value Expected")
-                    self.operation()
-            else:
-                self.category_balance[category] -= withdrawal_amount
-                print(f"{withdrawal_amount} successfully withdrawn from {category}")
-                print(f"Updated List and Balance:  {self.category_balance}")
-                try:
-                    reply = input("would you like to perform another operation? type y/yes or n/no: ".lower())
-                    if reply == "yes" or reply =="y":
-                        self.operation()
-                    elif reply =="no" or reply == "no":
-                        print(asterics + "Thanks for using this app" + asterics)
-                        exit()
-                    else:
-                        print("invalid value supplied")
-                        self.operation()
-                except ValueError:
-                    print("String value Expected")
-                    self.operation()           
-        except ValueError:
-            print("Digit value expected")
-            self.operation()
+date_time= dt.now()
 
 
-    # Transfer funds from one category to the other
-    def transfer_funds(self):
-        try:
-            # Category sending funds
-            print("The below are the categories available for deposit?")
-            for category in self.category_list:
-                print(self.category_list.index(category)+1, category.upper())
-            selected_category1 = int(input("Select a category to transfer funds from: "))
-            sending_category = selected_category1 - 1
-            category1 = self.category_list[sending_category]
-            
-            # Category receiving funds
-            selected_category2 = int(input("Select category to transfer funds to:"))
-            for category in self.category_list:
-                print(self.category_list.index(category)+1, category)
-            receiving_category =  selected_category2 - 1
-            category2 = self.category_list[receiving_category]
-            
-            
-            print(f"you have chosen to transfer funds from  {category1} to {category2}")
-            withdrawal_amount = int(input(f"How much do you want to transfer from {category1} to {category2}: "))
-            if withdrawal_amount >= self.category_balance[category1] or self.category_balance[category1] <= 0:
-                print(f"Insufficient funds, your current balance is {self.category_balance[category1]}")
-                try:
-                    response = input("Would you like to make a deposit? type y/yes or n/no: ".lower()) 
-                    if response == "yes" or response == "y":
-                        self.deposit_funds()
-                    elif response == "no" or response =="n":
-                        try:
-                            reply = input("would you like to perform another operation? type y/yes or n/no: ".lower())
-                            if reply == "yes" or reply =="y":
-                                self.operation()
-                            elif reply =="no" or reply == "no":
-                                print(asterics + "Thanks for using this app" + asterics)
-                                exit()
-                            else:
-                                print("invalid value supplied")
-                                self.operation()
-                        except ValueError:
-                            print("A string value Expected")
-                            self.operation()
-                    else:
-                        print("invalid parameter supplied")
-                        self.deposit_funds()   
-                except ValueError:
-                    print("A string value Expected")
-                    self.deposit_funds()
-            else:
-                self.category_balance[category1] -= withdrawal_amount
-                self.category_balance[category2] += withdrawal_amount
-                print(f"{withdrawal_amount} Successfully transfered from {category1} to {category2}")
-                print(f"Updated List and Balance:  {self.category_balance}")
-                try:
-                    response = input("Would you like to make another transfer? type y/yes or n/no: ".lower()) 
-                    if response == "yes" or response == "y":
-                        self.transfer_funds()
-                    elif response == "no" or response =="n":
-                        try:
-                            reply = input("would you like to perform another operation? type y/yes or n/no: ".lower())
-                            if reply == "yes" or reply =="y":
-                                self.operation()
-                            elif reply =="no" or reply == "no":
-                                print(asterics + "Thanks for using this app" + asterics)
-                                self.operation()
-                            else:
-                                print("invalid value supplied")
-                                self.operation() 
-                        except ValueError:
-                            print("A string value Expected")
-                            self.operation()
-                    else:
-                        print("invalid parameter supplied")
-                        self.operation()   
-                except ValueError:
-                    print("A string value Expected")
-                    self.operation()
-        except ValueError:
-            print("Digit value Expected")
-            self.transfer_funds()
      
+ 
+#customers makes complaints
+def complaint():
+    complaint = input("What issue will you like to report?: ")
+    print("Your Complaint goes thus: ", complaint)
+    print("Thank you for contacting us.")
+    try:
+        response = input("Would you like to perform another operation? type y/yes or n/no: ".lower())
+        if response == "yes" or response == "y":
+            login()
+            
+        elif response == "no" or response == 'n':
+            print("Thanks for banking with us")
+            exit()
+            
+        else:
+            print("Invalid response supplied")
+            bankOperation()
+    except TypeError:
+        print("character value Expected")
+    finally:
+        bankOperation()
+
+
+# Check available balance
+def current_balance(user):
+    current_balance = user[4]
+    print(f"Hello {user[0].upper()} {user[1].upper()} your available balance is: {current_balance}")
+    response = input("Would you like to perform another operation? type y/yes or n/no: ".casefold())
+    try:
+        if response == "yes" or response == "y":
+            bankOperation(user)  
+            
+        elif response == "no" or response == 'n':
+            print("Thanks for banking with us, you may take your card")
+            delete_login_session(accountNumberFromUser)
+            exit()
+            
+        else:
+            print("Invalid response suplied, please try again")
+            bankOperation(user)    
+    except TypeError:
+        print("Character value expected")
+    finally:
+        bankOperation(user)
     
-    # Get balance of each category
-    def get_balance(self):
-        for category in self.category_balance:
-            balance = self.category_balance[category]
-        print(f"{category} balance: # {balance}")
+
+# Withdraws funds from current user's account.
+def withdrawal(user):
+    current_balance = user[4]
+    try:
+        withdrawal = float(input("How much would you like to withdraw?: "))
+        if current_balance == 0 or withdrawal > current_balance:
+            print("Insufficient funds")
+            response = input("Would you like to make a deposit ? Type y for YES or n for NO: ".lower())
+            if response == "y":
+                deposit(user)
+            elif response == "no":
+                print("Thanks for banking with us")
+                bankOperation(user)
+        elif withdrawal <= 0:
+            print(f"You cannot withdraw {withdrawal} from your account, try a higher value")
+            withdrawal()
+            
+        else:
+            current_balance = float(current_balance) - withdrawal
+            print(f"you withdrew {withdrawal} and your available balance is : {current_balance}")
+            user[4] = current_balance
+    except ValueError:
+        print("Invalid Input supplied")
+        deposit(user)
+        
+    except TypeError:
+        print("Digit value expected")
+        deposit(user)
+    finally:
+        updated_user = user[0] + "," + user[1] + "," + user[2] + "," + user[3] + "," + str(user[4])
+        
+        user_db_path = "data/user_record/"
+        file = open(user_db_path + str(accountNumberFromUser) + ".txt", "w")
+        file.write(updated_user)
+        file.close()
         try:
-            response = input("would you like to perform another operation? type y/yes or n/no: ".lower())
-            if response == "yes" or response =="y":
-                self.operation()
-            elif response =="no" or response == "no":
-                print(asterics + "Thanks for using this app" + asterics)
+            response = input("Would you like to perform another operation? type y/yes or n/no: ".casefold())
+            if response == "yes" or response == "y":
+                bankOperation(user)
+                
+            elif response == "no" or response == 'n':
+                print("Thanks for banking with us, you may take your card")
+                delete_login_session(accountNumberFromUser)
                 exit()
+                
             else:
-                print("input not found, please try again")
-                self.get_balance() 
-        except ValueError:
-            print("A string value Expected")
-            self.operation()
+                print("Invalid value supplied, please try again")
+                bankOperation(user)     
+        except TypeError:
+            print("Digit input expected, please try again")  
+        finally:
+            bankOperation(user)
+
+
+# Deposit funds to current user account   
+def deposit(user):
+    current_balance = user[4]
+    try:
+        deposit = float(input("How much would you like to deposit?: "))
+        if deposit <= 0:
+            print(f"You cannot deposit {deposit} into your account, try a higher value")
+            deposit(user)
+        else:
+            current_balance = float(current_balance) + deposit
+            print(f"You deposited {deposit} and your available balance is: {current_balance}")
+            user[4] = current_balance
+    except ValueError:
+        print("Invalid Input supplied")
+        deposit(user)
+    except TypeError:
+        print("Digit value expected")
+        deposit(user)
+    finally:
+        updated_user = user[0] + "," + user[1] + "," + user[2] + "," + user[3] + "," + str(user[4])
+        user_db_path = "data/user_record/"
+        file = open(user_db_path + str(accountNumberFromUser) + ".txt", "w")
+        file.write(updated_user)
+        file.close()
+        
+        try:
+            response = input("Would you like to perform another operation? type y/yes or n/no: ".lower())
+            if response == "yes" or response == "y":
+                bankOperation(user)
+                
+            elif response == "no" or response == 'n':
+                print("Thanks for banking with us, you may take your card")
+                #delete_login_session(accountNumberFromUser)
+                exit()
+                
+            else:
+                print("Invalid value supplied, please try again")
+                bankOperation(user)  
+        except TypeError:
+            print("Digit input expected, please try again")
+        finally:
+            bankOperation(user)
+        
+ 
+#selected operations function 
+def bankOperation(user):
+    print("Welcome", user[0].upper(), user[1].upper(), "you are logged in on :", date_time, "\n")
+    print("The below are the operations you can perform")
+
+    print("[1] - CASH DEPOSIT.\n[2] - CASH WITHDRAWAL.\n[3] - CHECK BALANCE.\n[4] - COMPLAINTS.\n[5] - LOGOUT.\n[6] - EXIT.\n")
+    try:
+        selectedOption = int(input("Which operation would you like to perform ?: "))
+        
+        if selectedOption == 1:
+            deposit(user)
+            
+        elif selectedOption == 2:
+            withdrawal(user)
+            
+        elif selectedOption == 3:
+            current_balance(user)
+            
+        elif selectedOption == 4:
+            complaint()
+            
+        elif selectedOption == 5:
+            delete_login_session(accountNumberFromUser)
+            logout()
+            
+        elif selectedOption == 6:
+            print("Please take your card and thanks for banking with us.")
+            exit()
+            delete_login_session(accountNumberFromUser)
+        else:
+            print("invalid option selected please try again")
+            bankOperation(user)
+    except ValueError:
+        print("Digit is expected")
+    finally:
+        bankOperation(user)
+
+
+accountNumberFromUser = "" # declared this so the session.delete_login_session(accountNumberFromUser) could access its current value which is the account number
+# User Login
+def login():
+    print("*** Login into your Account ***")
+    global accountNumberFromUser
+    accountNumberFromUser = int(input("Enter your Account Number: "))
+    
+    is_valid_account_number = account_number_validation(accountNumberFromUser)
+    
+    if is_valid_account_number:
+        password = getpass("Enter your password: ")
+        user = database.authenticated_user(accountNumberFromUser, password)
+        if user:
+            create_login_session(accountNumberFromUser)
+            bankOperation(user)
+        else:
+            print("Invalid account or Password")
+    else:
+        print("Account Number Invalid: check that you have up to number is 10 digits and only integers")
+        login()
+
+
+# log out of current session   
+def logout():
+    login()
 
     
-    # Get total balance of the categories all-together      
-    def get_total_balance(self):
-        total_balance = 0
-        for category in self.category_balance:
-            balance = self.category_balance[category]
-            total_balance += balance
-            print(f"Total Balance : # { total_balance}")
-            try:
-                response = input("would you like to perform another operation? type y/yes or n/no: ".lower())
-                if response == "yes" or response =="y":
-                    self.operation()  
-                elif response =="no" or response == "no":
-                    print(asterics + "Thanks for using this app" + asterics)
-                    exit()
-                else:
-                    print("input not found, please try again")
-                    self.get_total_balance()
-            except ValueError:
-                print("A string value Expected")
-                self.operation()
-        
+#Account number generating function  
+def generateAccountNumber():
+    return random.randrange(1111111111,9999999999)
+
     
-    # To add new categories
-    def add_new_category(self):
-        supply_category = input(f"Supply Category Name: ")
-        self.category_list.append(supply_category)
-        self.category_balance[supply_category] = 0
-        print(asterics + "New Category successfully added" + asterics)
-        print(f"New Category List: {self.category_list} \nNew List and Balance:  {self.category_balance}.%2f\n")
-        try:
-            response = input("Would you like add another category? type y/yes or n/no: ".lower()) 
-            if response == "yes" or response == "y":
-                self.add_new_category()
-            elif response == "no" or response =="n":
-                try:
-                    reply = input("would you like to perform other operations? type y/yes or n/no: ".lower())
-                    if reply == "yes" or reply =="y":
-                        self.operation()
-                    elif reply =="no" or reply == "no":
-                        print("Thanks for using this app")
-                        exit()
-                    else:
-                        print("input not found, operation complete")
-                        self.operation() 
-                except ValueError:
-                    print("A string value Expected")
-                    self.operation()
-            else:
-                print("Invalid value Supplied")
-                self.operation()    
-        except ValueError:
-            print("A string value Expected")
-            self.operation()
-    def exit_app(self):
-        print(f"{asterics}Thanks for using this app{asterics}\n".upper())
-        exit()
-Budget().app_main()
+# New Users registeration function. 
+def register():
+    print("******* Create an Account *******\n")
+    email = input("Enter your email address: ")
+    first_name = input("Enter your first name: ")
+    last_name = input("Enter your last name: ")
+    password = getpass("Enter your password: ")
+    
+    account_number = generateAccountNumber()
+    
+    
+    is_user_created = database.create_record(account_number, first_name, last_name, email, password)
+    
+    if is_user_created:
+        print("Your Account Has Been Created\n")
+        print("==== ====== ====== ===== =====")
+        print("Your account number is: ", account_number)
+        print("Make sure you keep it safe.")
+        print("==== ====== ====== ===== =====\n")
+        login()
+    else:
+        print('Something went wrong, Please try again')
+        register()
+
+ 
+# Start of the applications  function
+def init():
+    print("Welcome to bankPHP")
+    try:
+        haveAccount = int(input("Do you have an account with us: 1 for (Yes), 2 (No)?: "))
+        if haveAccount == 1:
+            login()  
+            
+        elif haveAccount == 2:
+            register() 
+        else:
+            print("invalid selection\n")
+            init()
+    except ValueError:
+        print("Digit value expected\n")
+        init()
+init()
